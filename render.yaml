@@ -1,0 +1,61 @@
+# ==============================================
+# Hire Me OS 2.0 — Render Blueprint
+# ==============================================
+# IMPORTANT: Supabase requires the Connection Pooler URL
+# for runtime queries (port 6543) and Direct URL for
+# Prisma migrations (port 5432).
+#
+# DATABASE_URL  = Supabase Pooler (transaction mode, port 6543)
+# DIRECT_URL    = Supabase Direct  (for prisma db push, port 5432)
+# ==============================================
+
+services:
+  # ---- Web Service: Next.js App ----
+  - type: web
+    name: hire-me-os
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: npm run render-build
+    startCommand: npm run render-start
+    healthCheckPath: /api/health
+    numInstances: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Supabase Connection POOLER (for runtime queries) — port 6543
+      # Format: postgresql://postgres.hctzkjzoiomuvpyenqgy:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres
+      - key: DATABASE_URL
+        sync: false  # Set manually in Render dashboard
+
+      # Supabase DIRECT connection (for Prisma migrations) — port 5432
+      # Format: postgresql://postgres:PASSWORD@db.hctzkjzoiomuvpyenqgy.supabase.co:5432/postgres
+      - key: DIRECT_URL
+        sync: false  # Set manually in Render dashboard
+
+      # Supabase
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+
+      # Background worker
+      - key: ENABLE_BACKGROUND_WORKER
+        value: "true"
+
+      # Cron secret
+      - key: CRON_SECRET
+        generateValue: true
+
+      # Public URL
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+
+      # Port & Host
+      - key: PORT
+        value: "10000"
+      - key: HOSTNAME
+        value: "0.0.0.0"

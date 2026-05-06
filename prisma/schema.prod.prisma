@@ -1,0 +1,168 @@
+// Production Prisma Schema — PostgreSQL
+// This file is used for production deployments (Vercel, Railway, Docker)
+// To deploy: cp prisma/schema.prod.prisma prisma/schema.prisma
+// Then set DATABASE_URL to your PostgreSQL connection string
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Application {
+  number      Int      @id
+  company     String
+  role        String
+  status      String   @default("Applied")
+  score       Float    @default(0)
+  url         String   @default("")
+  location    String   @default("")
+  salary      String   @default("")
+  date        String   @default("")
+  notes       String   @default("")
+  autoApplied Boolean  @default(false)
+  lastFollowUp String  @default("")
+  nextFollowUp String  @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Setting {
+  key       String   @id
+  value     String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EvaluationReport {
+  id           String   @id @default(cuid())
+  appNumber    Int?
+  company      String
+  role         String
+  archetype    String
+  overallGrade String
+  overallScore Float
+  block1       String
+  block2       String
+  block3       String
+  block4       String
+  block5       String
+  block6       String
+  dimensions   String
+  rawOutput    String?
+  jdText       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model InterviewStory {
+  id         String   @id @default(cuid())
+  title      String
+  situation  String
+  task       String
+  action     String
+  result     String
+  reflection String
+  tags       String
+  source     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ScoringWeight {
+  id        String   @id @default(cuid())
+  dimension String   @unique
+  label     String
+  weight    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SchedulerConfig {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  enabled          Boolean  @default(false)
+  scanIntervalMin  Int      @default(60)
+  followUpIntervalDays Int  @default(7)
+  autoEvaluate     Boolean  @default(true)
+  autoApply        Boolean  @default(false)
+  minScoreToApply  Float    @default(3.5)
+  minGradeToApply  String   @default("B")
+  portals          String   @default("linkedin,indeed,glassdoor,wellfound")
+  searchQueries    String   @default("AI Engineer,ML Engineer,LLM Engineer,Data Scientist")
+  locationFilter   String   @default("")
+  lastRunAt        String   @default("")
+  nextRunAt        String   @default("")
+  notifyEmail      String   @default("")
+  notifyOnAutoApply Boolean @default(true)
+  notifyOnNewMatch Boolean  @default(true)
+  notifyOnFollowUp Boolean  @default(true)
+  notifyOnCycleComplete Boolean @default(true)
+  notifyOnErrors   Boolean  @default(true)
+  notifyDigestMode String   @default("instant")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model FollowUp {
+  id          String   @id @default(cuid())
+  appNumber   Int
+  type        String   @default("email")
+  content     String
+  sentAt      String   @default("")
+  scheduledAt String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  link      String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model AutoApplyLog {
+  id          String   @id @default(cuid())
+  appNumber   Int?
+  url         String
+  status      String   @default("pending")
+  result      String   @default("")
+  attempts    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CycleHistory {
+  id                String   @id @default(cuid())
+  scannedJobs       Int      @default(0)
+  evaluatedJobs     Int      @default(0)
+  autoAppliedJobs   Int      @default(0)
+  followUpsScheduled Int     @default(0)
+  followUpsSent     Int      @default(0)
+  newApplications   Int      @default(0)
+  errors            String   @default("[]")
+  triggeredBy       String   @default("manual")
+  duration          Int      @default(0)
+  createdAt         DateTime @default(now())
+}
+
+model EmailConfig {
+  id        String   @id @default(cuid())
+  smtpHost  String   @default("")
+  smtpPort  Int      @default(587)
+  smtpUser  String   @default("")
+  smtpPass  String   @default("")
+  fromEmail String   @default("")
+  fromName  String   @default("")
+  useTLS    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
